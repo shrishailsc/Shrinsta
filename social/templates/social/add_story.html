@@ -1,0 +1,77 @@
+{% extends "social/base.html" %}
+
+{% block extra_css %}
+<style>
+    .story-container {
+        max-width: 450px;
+        margin: 50px auto;
+        padding: 25px;
+        background: white;
+        border-radius: 18px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    .story-container h2 {
+        color: #262626;
+        margin-bottom: 25px;
+    }
+
+    .story-upload {
+        display: block;
+        width: 100%;
+        padding: 15px;
+        margin: 20px 0;
+        border: 2px dashed #d62976;
+        border-radius: 12px;
+        box-sizing: border-box;
+    }
+
+    .story-button {
+        width: 100%;
+        padding: 13px;
+        background: linear-gradient(45deg, #feda75, #fa7e1e, #d62976, #962fbf);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .story-button:hover {
+        opacity: 0.9;
+    }
+
+    .back-link {
+        display: inline-block;
+        margin-top: 20px;
+        color: #d62976;
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="story-container">
+
+    <h2>＋ Add Your Story</h2>
+
+    <p>Share a moment with your followers!</p>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <input type="file" name="image" accept="image/*" class="story-upload" required>
+
+        <button type="submit" class="story-button">
+            Share Story
+        </button>
+    </form>
+
+    <a href="{% url 'home' %}" class="back-link">
+        ← Back to Home
+    </a>
+
+</div>
+{% endblock %}

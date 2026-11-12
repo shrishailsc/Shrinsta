@@ -1,0 +1,175 @@
+{% extends "social/base.html" %}
+
+{% block extra_css %}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f0f2f5;
+        margin: 0;
+        padding: 30px;
+        padding-bottom: 90px;
+    }
+
+    .container {
+        max-width: 650px;
+        margin: 40px auto;
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 3px 10px #ddd;
+    }
+
+    h1 {
+        color: #1877f2;
+        text-align: center;
+    }
+
+    input {
+        width: 100%;
+        padding: 12px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 16px;
+    }
+
+    button {
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+    .user-card {
+        background: #f0f2f5;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 10px;
+    }
+
+    .follow-button {
+        background: #1877f2;
+    }
+
+    .unfollow-button {
+        background: #dc3545;
+    }
+
+    .message-button {
+        display: inline-block;
+        background: #d62976;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        margin-top: 10px;
+        margin-left: 5px;
+    }
+
+    a {
+        color: #1877f2;
+        text-decoration: none;
+    }
+
+    .message-button {
+        color: white;
+    }
+
+    @media (max-width: 500px) {
+        body {
+            padding: 12px;
+            padding-bottom: 90px;
+        }
+
+        .container {
+            margin: 15px auto;
+            padding: 18px;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container">
+
+    <h1>🔍 Find People</h1>
+
+    {% if messages %}
+    {% for message in messages %}
+    <p>{{ message }}</p>
+    {% endfor %}
+    {% endif %}
+
+    <form method="GET" action="{% url 'search_users' %}">
+        <input type="text" name="q" placeholder="Search by username..." value="{{ query }}" required>
+
+        <button type="submit" style="background:#1877f2;">
+            Search
+        </button>
+    </form>
+
+    <hr>
+
+    <h2>Search Results</h2>
+
+    {% for person in users %}
+
+    <div class="user-card">
+
+        <h3>
+            👤
+            <a href="{% url 'user_profile' person.id %}">
+                {{ person.username }}
+            </a>
+        </h3>
+
+        {% if person.profile in user.profile.following.all %}
+
+        <form method="POST" action="{% url 'unfollow_user' person.id %}">
+            {% csrf_token %}
+            <button type="submit" class="unfollow-button">
+                Unfollow
+            </button>
+        </form>
+
+        {% else %}
+
+        <form method="POST" action="{% url 'follow_user' person.id %}">
+            {% csrf_token %}
+            <button type="submit" class="follow-button">
+                Follow +
+            </button>
+        </form>
+
+        {% endif %}
+
+        <!-- MESSAGE BUTTON -->
+        <a href="{% url 'chat' person.id %}" class="message-button">
+            ✉ Message
+        </a>
+
+    </div>
+
+    {% empty %}
+
+    {% if query %}
+    <p>No users found for "{{ query }}".</p>
+    {% else %}
+    <p>Enter a username to find people.</p>
+    {% endif %}
+
+    {% endfor %}
+
+    <hr>
+
+    <p>
+        <a href="{% url 'home' %}">← Back to Home</a>
+    </p>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,202 @@
+{% extends "social/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: #f0f2f5;
+    }
+
+    .saved-container {
+        max-width: 900px;
+        margin: 25px auto;
+        padding: 15px;
+        padding-bottom: 100px;
+    }
+
+    .saved-heading {
+        font-size: 28px;
+        color: #222;
+        margin-bottom: 8px;
+    }
+
+    .saved-subtitle {
+        color: #777;
+        margin-bottom: 25px;
+    }
+
+    .saved-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+    }
+
+    .saved-item {
+        position: relative;
+        aspect-ratio: 1 / 1;
+        background: #ddd;
+        border-radius: 6px;
+        overflow: hidden;
+        text-decoration: none;
+    }
+
+    .saved-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .saved-text {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 15px;
+        box-sizing: border-box;
+        color: #333;
+        font-weight: bold;
+        overflow-wrap: anywhere;
+    }
+
+    .saved-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 18px;
+        opacity: 0;
+        transition: 0.3s;
+    }
+
+    .saved-item:hover .saved-overlay {
+        opacity: 1;
+    }
+
+    .unsave-form {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        z-index: 2;
+    }
+
+    .unsave-button {
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 35px;
+        height: 35px;
+        cursor: pointer;
+        font-size: 17px;
+    }
+
+    .empty-saved {
+        background: white;
+        padding: 60px 20px;
+        text-align: center;
+        border-radius: 12px;
+        color: #777;
+    }
+
+    @media(max-width: 600px) {
+        .saved-container {
+            padding: 8px;
+            padding-bottom: 100px;
+        }
+
+        .saved-heading {
+            font-size: 23px;
+        }
+
+        .saved-grid {
+            gap: 3px;
+        }
+
+        .saved-item {
+            border-radius: 2px;
+        }
+
+        .saved-overlay {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="saved-container">
+
+    <h1 class="saved-heading">🔖 Saved Posts</h1>
+
+    <p class="saved-subtitle">
+        Your private collection of saved posts
+    </p>
+
+    {% if saved_items %}
+
+    <div class="saved-grid">
+
+        {% for item in saved_items %}
+
+        <div class="saved-item">
+
+            <form method="POST" action="{% url 'save_post' item.post.id %}" class="unsave-form">
+
+                {% csrf_token %}
+
+                <button type="submit" class="unsave-button" title="Remove from saved">
+                    🔖
+                </button>
+
+            </form>
+
+            {% if item.post.image %}
+
+            <img src="{{ item.post.image.url }}" alt="Saved post">
+
+            {% elif item.post.images.all %}
+
+            {% for post_image in item.post.images.all %}
+            {% if forloop.first %}
+            <img src="{{ post_image.image.url }}" alt="Saved post">
+            {% endif %}
+            {% endfor %}
+
+            {% else %}
+
+            <div class="saved-text">
+                {{ item.post.content|truncatechars:100 }}
+            </div>
+
+            {% endif %}
+
+            <div class="saved-overlay">
+                ♥ {{ item.post.likes.count }}
+                &nbsp;&nbsp;
+                💬 {{ item.post.comments.count }}
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    {% else %}
+
+    <div class="empty-saved">
+        <h2>🔖</h2>
+        <h3>No saved posts yet</h3>
+        <p>Save posts you love and find them here anytime.</p>
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

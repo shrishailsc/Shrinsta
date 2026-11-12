@@ -1,0 +1,58 @@
+{% extends "social/base.html" %}
+
+{% block extra_css %}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f0f2f5;
+    }
+
+    .container {
+        max-width: 650px;
+        margin: 30px auto;
+        padding: 0 15px;
+    }
+
+    .notification {
+        background: white;
+        padding: 18px;
+        margin: 12px 0;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px #ddd;
+    }
+
+    .unread {
+        border-left: 5px solid #1877f2;
+    }
+
+    .notification p {
+        margin: 8px 0;
+    }
+
+    .notification small {
+        color: #777;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <h1>🔔 Notifications</h1>
+
+    <p>Unread notifications: {{ unread_count }}</p>
+
+    {% for notification in notifications %}
+    <div class="notification {% if not notification.is_read %}unread{% endif %}">
+        <strong>{{ notification.sender.username }}</strong>
+        <p>{{ notification.message }}</p>
+        <small>{{ notification.created_at }}</small>
+    </div>
+    {% empty %}
+    <p>No notifications yet.</p>
+    {% endfor %}
+
+    <p><a href="{% url 'home' %}">← Back to Home</a></p>
+
+</div>
+{% endblock %}

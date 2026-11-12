@@ -1,0 +1,266 @@
+{% extends "social/base.html" %}
+
+{% block content %}
+<style>
+    .chat-container {
+        max-width: 650px;
+        margin: 20px auto;
+        background: white;
+        border-radius: 14px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, .08);
+        height: 75vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .chat-header {
+        padding: 14px 18px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+        gap: 13px;
+    }
+
+    .back-link {
+        text-decoration: none;
+        color: #d62976;
+        font-size: 25px;
+    }
+
+    .header-avatar {
+        width: 43px;
+        height: 43px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #f3d5e5;
+    }
+
+    .avatar-placeholder {
+        width: 43px;
+        height: 43px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #d62976, #962fbf);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 19px;
+    }
+
+    .header-info h3 {
+        margin: 0;
+        font-size: 16px;
+    }
+
+    .header-info small {
+        color: #888;
+    }
+
+    .messages-area {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        background: #fafafa;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .message-row {
+        display: flex;
+        align-items: flex-end;
+        gap: 8px;
+        max-width: 85%;
+    }
+
+    .message-row.sent-row {
+        align-self: flex-end;
+    }
+
+    .message-row.received-row {
+        align-self: flex-start;
+    }
+
+    .message-avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        object-fit: cover;
+        flex-shrink: 0;
+    }
+
+    .message {
+        padding: 11px 15px;
+        border-radius: 18px;
+        overflow-wrap: anywhere;
+        min-width: 50px;
+    }
+
+    .sent {
+        background: #d62976;
+        color: white;
+        border-bottom-right-radius: 4px;
+    }
+
+    .received {
+        background: #e9e9eb;
+        color: #262626;
+        border-bottom-left-radius: 4px;
+    }
+
+    .message-time {
+        display: block;
+        font-size: 10px;
+        margin-top: 5px;
+        opacity: .75;
+    }
+
+    .delete-button {
+        background: transparent;
+        color: white;
+        border: none;
+        padding: 3px 0;
+        cursor: pointer;
+        font-size: 11px;
+    }
+
+    .message-form {
+        display: flex;
+        gap: 10px;
+        padding: 15px;
+        border-top: 1px solid #eee;
+        background: white;
+    }
+
+    .message-form input {
+        flex: 1;
+        min-width: 0;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 25px;
+        outline: none;
+        font-size: 15px;
+    }
+
+    .message-form input:focus {
+        border-color: #d62976;
+    }
+
+    .message-form button {
+        border: none;
+        background: #d62976;
+        color: white;
+        padding: 0 22px;
+        border-radius: 25px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    @media(max-width:600px) {
+        .chat-container {
+            margin: 0;
+            height: calc(100vh - 90px);
+            border-radius: 0;
+        }
+
+        .messages-area {
+            padding: 14px 10px;
+        }
+
+        .message-row {
+            max-width: 90%;
+        }
+    }
+</style>
+
+<div class="chat-container">
+
+    <div class="chat-header">
+        <a href="{% url 'inbox' %}" class="back-link">←</a>
+
+        {% if other_user.profile.profile_picture %}
+        <img src="{{ other_user.profile.profile_picture.url }}" class="header-avatar" alt="Profile picture">
+        {% else %}
+        <div class="avatar-placeholder">
+            {{ other_user.username|first|upper }}
+        </div>
+        {% endif %}
+
+        <div class="header-info">
+            <h3>{{ other_user.username }}</h3>
+            <small>Shrinsta messages</small>
+        </div>
+    </div>
+
+    <div class="messages-area" id="messagesArea">
+
+        {% for message in chat_messages %}
+
+        {% if message.sender == request.user %}
+
+        <div class="message-row sent-row">
+            <div class="message sent">
+                {{ message.content|linebreaksbr }}
+
+                <span class="message-time">
+                    {{ message.created_at|date:"h:i A" }}
+                    {% if message.is_read %} · Seen{% endif %}
+                </span>
+
+                <form method="POST" action="{% url 'delete_message' message.id %}"
+                    onsubmit="return confirm('Delete this message?');">
+                    {% csrf_token %}
+                    <button type="submit" class="delete-button">
+                        🗑 Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        {% else %}
+
+        <div class="message-row received-row">
+
+            {% if other_user.profile.profile_picture %}
+            <img src="{{ other_user.profile.profile_picture.url }}" class="message-avatar" alt="Profile picture">
+            {% else %}
+            <div class="avatar-placeholder" style="width:30px;height:30px;font-size:13px;">
+                {{ other_user.username|first|upper }}
+            </div>
+            {% endif %}
+
+            <div class="message received">
+                {{ message.content|linebreaksbr }}
+
+                <span class="message-time">
+                    {{ message.created_at|date:"h:i A" }}
+                </span>
+            </div>
+        </div>
+
+        {% endif %}
+
+        {% empty %}
+        <p style="text-align:center;color:#888;">
+            Start your conversation!
+        </p>
+        {% endfor %}
+
+    </div>
+
+    <form method="POST" class="message-form">
+        {% csrf_token %}
+        <input type="text" name="content" placeholder="Message..." maxlength="2000" required autocomplete="off">
+        <button type="submit">Send</button>
+    </form>
+
+</div>
+
+<script>
+    const messagesArea = document.getElementById("messagesArea");
+    messagesArea.scrollTop = messagesArea.scrollHeight;
+</script>
+
+{% endblock %}

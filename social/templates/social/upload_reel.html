@@ -1,0 +1,87 @@
+{% extends "social/base.html" %}
+
+{% block content %}
+
+<style>
+    .upload-container {
+        max-width: 500px;
+        margin: 50px auto;
+        padding: 30px;
+        background: white;
+        border-radius: 18px;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+    }
+
+    .upload-container h2 {
+        text-align: center;
+        margin-bottom: 25px;
+        color: #262626;
+    }
+
+    .upload-container label {
+        display: block;
+        margin: 15px 0 8px;
+        font-weight: bold;
+    }
+
+    .upload-container input,
+    .upload-container textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 9px;
+        box-sizing: border-box;
+    }
+
+    .upload-container textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .upload-btn {
+        width: 100%;
+        padding: 13px;
+        margin-top: 20px;
+        border: none;
+        border-radius: 9px;
+        background: linear-gradient(45deg, #f09433, #dc2743, #bc1888);
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .upload-btn:hover {
+        opacity: 0.9;
+    }
+
+    .note {
+        color: #777;
+        font-size: 13px;
+        margin-top: 10px;
+    }
+</style>
+
+<div class="upload-container">
+
+    <h2>🎬 Upload Your Reel</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <label>Select Video</label>
+        <input type="file" name="video" accept="video/mp4,video/webm,video/ogg" required>
+
+        <p class="note">MP4, WebM or OGG. Maximum size: 50 MB.</p>
+
+        <label>Write a Caption</label>
+        <textarea name="caption" placeholder="Write something about your reel..." maxlength="500"></textarea>
+
+        <button type="submit" class="upload-btn">
+            Upload Reel
+        </button>
+    </form>
+
+</div>
+
+{% endblock %}

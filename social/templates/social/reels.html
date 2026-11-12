@@ -1,0 +1,231 @@
+{% extends "social/base.html" %}
+
+{% block content %}
+
+<style>
+    body {
+        background: #111;
+        color: white;
+    }
+
+    .reels-page {
+        max-width: 480px;
+        margin: auto;
+        padding-bottom: 10px;
+    }
+
+    .reels-heading {
+        text-align: center;
+        padding: 15px;
+        margin: 0;
+    }
+
+    .upload-link {
+        display: block;
+        width: fit-content;
+        margin: 0 auto 15px;
+        padding: 9px 20px;
+        background: linear-gradient(45deg, #f09433, #dc2743, #bc1888);
+        color: white;
+        text-decoration: none;
+        border-radius: 20px;
+        font-weight: bold;
+    }
+
+    .reel-card {
+        position: relative;
+        height: calc(100vh - 160px);
+        min-height: 480px;
+        max-height: 750px;
+        margin-bottom: 20px;
+        background: #000;
+        overflow: hidden;
+        border-radius: 14px;
+        scroll-snap-align: start;
+    }
+
+    .reel-video {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        background: black;
+    }
+
+    .reel-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 25px 75px 20px 15px;
+        background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    }
+
+    .reel-user {
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .reel-caption {
+        overflow-wrap: anywhere;
+        font-size: 14px;
+    }
+
+    .reel-actions {
+        position: absolute;
+        right: 12px;
+        bottom: 90px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .reel-actions button {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 27px;
+        cursor: pointer;
+    }
+
+    .reel-actions span {
+        font-size: 12px;
+    }
+
+    .comment-list {
+        padding: 12px;
+        background: #222;
+        overflow-wrap: anywhere;
+    }
+
+    .comment-form {
+        display: flex;
+        gap: 8px;
+        padding: 12px;
+        background: #222;
+    }
+
+    .comment-form input {
+        flex: 1;
+        min-width: 0;
+        padding: 10px;
+        border: none;
+        border-radius: 20px;
+    }
+
+    .comment-form button {
+        background: #e1306c;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 20px;
+    }
+
+    .empty-reels {
+        text-align: center;
+        padding: 50px 10px;
+    }
+
+    @media(max-width: 600px) {
+        .reel-card {
+            height: calc(100dvh - 160px);
+            min-height: 400px;
+            border-radius: 0;
+        }
+
+        .reels-page {
+            padding-bottom: 0;
+        }
+    }
+</style>
+
+<div class="reels-page">
+
+    <h2 class="reels-heading">🎬 Shrinsta Reels</h2>
+
+    <a href="{% url 'upload_reel' %}" class="upload-link">
+        ＋ Upload Reel
+    </a>
+
+    {% for reel in reels %}
+
+    <div class="reel-card">
+
+        <video class="reel-video" controls muted loop playsinline>
+            <source src="{{ reel.video.url }}">
+            Your browser does not support video playback.
+        </video>
+
+        <div class="reel-overlay">
+
+            <div class="reel-user">
+                @{{ reel.author.username }}
+            </div>
+
+            <div class="reel-caption">
+                {{ reel.caption }}
+            </div>
+
+        </div>
+
+        <div class="reel-actions">
+
+            <form method="POST" action="{% url 'like_reel' reel.id %}">
+                {% csrf_token %}
+                <button type="submit">
+                    {% if request.user in reel.likes.all %}
+                    ❤️
+                    {% else %}
+                    🤍
+                    {% endif %}
+                </button>
+                <span>{{ reel.likes.count }}</span>
+            </form>
+
+            <button type="button"
+                onclick="document.getElementById('comments-{{ reel.id }}').scrollIntoView({behavior:'smooth'});">
+                💬
+            </button>
+
+            <span>{{ reel.comments.count }}</span>
+
+        </div>
+
+    </div>
+
+    <div class="comment-list" id="comments-{{ reel.id }}">
+
+        <strong>Comments</strong>
+
+        {% for comment in reel.comments.all %}
+        <p>
+            <strong>@{{ comment.author.username }}</strong>
+            {{ comment.content }}
+        </p>
+        {% empty %}
+        <p>No comments yet.</p>
+        {% endfor %}
+
+        <form method="POST" action="{% url 'add_reel_comment' reel.id %}" class="comment-form">
+            {% csrf_token %}
+
+            <input type="text" name="content" placeholder="Add a comment..." maxlength="500" required>
+
+            <button type="submit">Post</button>
+        </form>
+
+    </div>
+
+    {% empty %}
+
+    <div class="empty-reels">
+        <h3>No Reels Yet!</h3>
+        <p>Be the first to upload a video.</p>
+    </div>
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}

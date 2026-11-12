@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Connections</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: 30px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px #ddd;
+        }
+
+        h1,
+        h2 {
+            color: #1877f2;
+            text-align: center;
+        }
+
+        .user-card {
+            background: #f0f2f5;
+            padding: 15px;
+            margin: 12px 0;
+            border-radius: 8px;
+        }
+
+        a {
+            color: #1877f2;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>👥 My Connections</h1>
+
+        <h2>Followers ({{ followers_count }})</h2>
+
+        {% for person in followers %}
+        <div class="user-card">
+            👤 {{ person.user.username }}
+        </div>
+        {% empty %}
+        <p style="text-align:center;">Nobody follows you yet.</p>
+        {% endfor %}
+
+        <hr>
+
+        <h2>Following ({{ following_count }})</h2>
+
+        {% for person in following %}
+        <div class="user-card">
+            👤 {{ person.user.username }}
+        </div>
+        {% empty %}
+        <p style="text-align:center;">You are not following anyone yet.</p>
+        {% endfor %}
+
+        <hr>
+
+        <p><a href="{% url 'profile' %}">← Back to Profile</a></p>
+        <p><a href="{% url 'home' %}">← Back to Home</a></p>
+
+    </div>
+
+</body>
+
+</html>

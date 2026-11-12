@@ -1,0 +1,263 @@
+{% extends "social/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: #f0f2f5;
+    }
+
+    .explore-container {
+        max-width: 950px;
+        margin: 25px auto;
+        padding: 15px;
+        padding-bottom: 100px;
+    }
+
+    .explore-heading {
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 8px;
+        color: #222;
+    }
+
+    .explore-subtitle {
+        color: #777;
+        margin-bottom: 25px;
+    }
+
+    .explore-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 5px;
+    }
+
+    .explore-card {
+        position: relative;
+        aspect-ratio: 1 / 1;
+        overflow: hidden;
+        background: #ddd;
+        border-radius: 5px;
+    }
+
+    .explore-item {
+        position: absolute;
+        inset: 0;
+        display: block;
+        text-decoration: none;
+        color: white;
+        overflow: hidden;
+    }
+
+    .explore-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.3s;
+    }
+
+    .explore-item:hover img {
+        transform: scale(1.06);
+    }
+
+    .explore-text {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 15px;
+        box-sizing: border-box;
+        text-align: center;
+        color: #333;
+        font-size: 15px;
+        font-weight: bold;
+        background: #e5e7eb;
+        overflow-wrap: anywhere;
+    }
+
+    .explore-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        opacity: 0;
+        transition: 0.3s;
+        font-weight: bold;
+    }
+
+    .explore-item:hover .explore-overlay {
+        opacity: 1;
+    }
+
+    .bookmark-form {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 5;
+    }
+
+    .bookmark-button {
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        border: none;
+        border-radius: 20px;
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 13px;
+        margin: 0;
+    }
+
+    .bookmark-button.saved {
+        background: #d62976;
+    }
+
+    .explore-empty {
+        text-align: center;
+        padding: 60px 15px;
+        background: white;
+        border-radius: 12px;
+        color: #777;
+    }
+
+    @media (max-width: 600px) {
+        .explore-container {
+            margin: 10px auto;
+            padding: 8px;
+            padding-bottom: 100px;
+        }
+
+        .explore-heading {
+            font-size: 23px;
+        }
+
+        .explore-grid {
+            gap: 3px;
+        }
+
+        .explore-card {
+            border-radius: 2px;
+        }
+
+        .explore-overlay {
+            display: none;
+        }
+
+        .bookmark-form {
+            top: 5px;
+            right: 5px;
+        }
+
+        .bookmark-button {
+            padding: 6px 8px;
+            font-size: 11px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="explore-container">
+
+    <h1 class="explore-heading">Explore</h1>
+
+    <p class="explore-subtitle">
+        Discover posts from the Shrinsta community
+    </p>
+
+    {% if posts %}
+
+    <div class="explore-grid">
+
+        {% for post in posts %}
+
+        <div class="explore-card">
+
+            {% if post.author %}
+
+            <a href="{% url 'user_profile' post.author.id %}" class="explore-item">
+
+                {% else %}
+
+                <div class="explore-item">
+
+                    {% endif %}
+
+                    {% if post.image %}
+
+                    <img src="{{ post.image.url }}" alt="Post">
+
+                    {% elif post.images.all %}
+
+                    {% for post_image in post.images.all %}
+                    {% if forloop.first %}
+                    <img src="{{ post_image.image.url }}" alt="Post">
+                    {% endif %}
+                    {% endfor %}
+
+                    {% else %}
+
+                    <div class="explore-text">
+                        {{ post.content|truncatechars:100 }}
+                    </div>
+
+                    {% endif %}
+
+                    <div class="explore-overlay">
+                        <span>♥ {{ post.likes.count }}</span>
+                        <span>💬 {{ post.comments.count }}</span>
+                    </div>
+
+                    {% if post.author %}
+            </a>
+            {% else %}
+        </div>
+        {% endif %}
+
+        {% if user.is_authenticated %}
+
+        <form method="POST" action="{% url 'save_post' post.id %}" class="bookmark-form">
+
+            {% csrf_token %}
+
+            {% if post.id in saved_post_ids %}
+
+            <button type="submit" class="bookmark-button saved">
+                🔖 Saved
+            </button>
+
+            {% else %}
+
+            <button type="submit" class="bookmark-button">
+                🔖 Save
+            </button>
+
+            {% endif %}
+
+        </form>
+
+        {% endif %}
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+{% else %}
+
+<div class="explore-empty">
+    <h2>No posts yet</h2>
+    <p>Be the first to share something with Shrinsta!</p>
+</div>
+
+{% endif %}
+
+</div>
+
+{% endblock %}

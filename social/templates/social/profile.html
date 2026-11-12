@@ -1,0 +1,217 @@
+{% extends "social/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f0f2f5;
+        text-align: center;
+        padding: 30px;
+        padding-bottom: 90px;
+    }
+
+    .profile-card {
+        background: white;
+        padding: 35px;
+        max-width: 450px;
+        margin: 30px auto;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px #ccc;
+    }
+
+    h1 {
+        color: #1877f2;
+    }
+
+    textarea {
+        width: 100%;
+        height: 100px;
+        padding: 12px;
+        box-sizing: border-box;
+        margin: 15px 0;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 15px;
+    }
+
+    input[type="file"] {
+        margin: 15px 0;
+    }
+
+    button {
+        background: #1877f2;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    a {
+        color: #1877f2;
+        text-decoration: none;
+    }
+
+    a:hover {
+        color: #e1306c;
+    }
+
+    .stats {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin: 25px 0;
+        flex-wrap: wrap;
+    }
+
+    .stat {
+        background: #f0f2f5;
+        padding: 15px 25px;
+        border-radius: 10px;
+    }
+
+    .stat h2 {
+        margin: 5px;
+        color: #1877f2;
+    }
+
+    .profile-image {
+        width: 140px;
+        height: 140px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid #1877f2;
+    }
+
+    .profile-links {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 25px;
+    }
+
+    .profile-link {
+        display: block;
+        padding: 13px;
+        border-radius: 10px;
+        background: #f0f2f5;
+        color: #333;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+
+    .profile-link:hover {
+        background: #ffe5f0;
+        color: #d62976;
+    }
+
+    .saved-link {
+        background: linear-gradient(45deg, #ffcc00, #ff5722, #ff0080);
+        color: white;
+    }
+
+    .saved-link:hover {
+        color: white;
+        opacity: 0.9;
+    }
+
+    @media (max-width: 500px) {
+        body {
+            padding: 12px;
+            padding-bottom: 90px;
+        }
+
+        .profile-card {
+            padding: 22px;
+            margin: 15px auto;
+        }
+    }
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="profile-card">
+
+    <h1>My Profile</h1>
+
+    {% if profile.image %}
+
+    <img src="{{ profile.image.url }}" class="profile-image" alt="Profile Picture">
+
+    {% else %}
+
+    <p>📷 No profile picture uploaded</p>
+
+    {% endif %}
+
+    <h2>{{ profile.user.username }}</h2>
+
+    <p>Email: {{ profile.user.email }}</p>
+
+    <div class="stats">
+
+        <div class="stat">
+            <h2>{{ followers_count }}</h2>
+            <p>Followers</p>
+        </div>
+
+        <div class="stat">
+            <h2>{{ following_count }}</h2>
+            <p>Following</p>
+        </div>
+
+    </div>
+
+    {% for message in messages %}
+    <p>{{ message }}</p>
+    {% endfor %}
+
+    <h3>Edit Your Profile</h3>
+
+    <form method="POST" enctype="multipart/form-data">
+
+        {% csrf_token %}
+
+        <label>
+            <strong>Choose Profile Picture:</strong>
+        </label>
+
+        <br>
+
+        <input type="file" name="image" accept="image/*">
+
+        <br>
+
+        <textarea name="bio" maxlength="300"
+            placeholder="Write something about yourself...">{{ profile.bio }}</textarea>
+
+        <br>
+
+        <button type="submit">Save Profile</button>
+
+    </form>
+
+    <div class="profile-links">
+
+        <a href="{% url 'saved_posts' %}" class="profile-link saved-link">
+            🔖 My Saved Posts
+        </a>
+
+        <a href="{% url 'connections' %}" class="profile-link">
+            👥 View My Connections
+        </a>
+
+        <a href="{% url 'home' %}" class="profile-link">
+            🏠 Back to Home
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

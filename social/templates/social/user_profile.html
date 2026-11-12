@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: 30px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px #ddd;
+        }
+
+        h1 {
+            color: #1877f2;
+            text-align: center;
+        }
+
+        .profile-image {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #1877f2;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin: 25px 0;
+        }
+
+        .stat {
+            background: #f0f2f5;
+            padding: 15px 25px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat h2 {
+            color: #1877f2;
+            margin: 5px;
+        }
+
+        .post {
+            background: #f0f2f5;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 10px;
+        }
+
+        a {
+            color: #1877f2;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>👤 User Profile</h1>
+
+        {% if profile.image %}
+        <div style="text-align:center;">
+            <img src="{{ profile.image.url }}" class="profile-image" alt="Profile Picture">
+        </div>
+        {% endif %}
+
+        <h2 style="text-align:center;">{{ profile_user.username }}</h2>
+
+        <p><strong>Bio:</strong>
+            {% if profile.bio %}
+            {{ profile.bio }}
+            {% else %}
+            No bio available.
+            {% endif %}
+        </p>
+
+        <div class="stats">
+
+            <div class="stat">
+                <h2>{{ posts.count }}</h2>
+                <p>Posts</p>
+            </div>
+
+            <div class="stat">
+                <h2>{{ followers_count }}</h2>
+                <p>Followers</p>
+            </div>
+
+            <div class="stat">
+                <h2>{{ following_count }}</h2>
+                <p>Following</p>
+            </div>
+
+        </div>
+
+        <hr>
+
+        <h2>📝 Published Posts</h2>
+
+        {% for post in posts %}
+
+        <div class="post">
+            <p>{{ post.content }}</p>
+            <small>{{ post.created_at }}</small>
+            <p>❤️ {{ post.likes.count }} Likes</p>
+        </div>
+
+        {% empty %}
+
+        <p>No posts published yet.</p>
+
+        {% endfor %}
+
+        <hr>
+
+        <p><a href="{% url 'search_users' %}">← Back to Search</a></p>
+        <p><a href="{% url 'home' %}">← Back to Home</a></p>
+
+    </div>
+
+</body>
+
+</html>
